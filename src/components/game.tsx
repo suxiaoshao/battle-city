@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GameBase } from '../canvas/gameBase';
+import { dpr, GameBase } from '../canvas/gameBase';
 
 export default function Game(props: { className?: string }): JSX.Element {
   const gameCanvas = useRef<HTMLCanvasElement>();
@@ -61,7 +61,14 @@ export default function Game(props: { className?: string }): JSX.Element {
           {gaming ? '暂停' : '开始'}
         </button>
       </div>
-      <canvas ref={gameCanvas} className={props.className} />
+      <canvas
+        style={{
+          width: 750 / dpr,
+          height: 750 / dpr,
+        }}
+        ref={gameCanvas}
+        className={props.className}
+      />
       <div className="sidebar" />
     </>
   );

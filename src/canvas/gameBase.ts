@@ -1,10 +1,13 @@
-export type PointNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+export type PointNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
 
 export interface GroundItem {
   x: PointNumber;
   y: PointNumber;
   typeCode: 1 | 2 | 3;
 }
+
+export const dpr = window.devicePixelRatio || 1;
+const size = 37.5;
 
 export class GameBase {
   public context: CanvasRenderingContext2D;
@@ -18,7 +21,6 @@ export class GameBase {
     playerTank: { x: PointNumber; y: PointNumber; color: string },
   ) {
     //初始化context
-    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = (rect.width || canvas.width) * dpr;
     canvas.height = (rect.height || canvas.height) * dpr;
@@ -61,7 +63,7 @@ export class GameBase {
       }),
     );
     if (this.ground[this.playerTank.x][this.playerTank.y] === null) {
-      this.playerTank.draw();
+      this.playerTank.draw(0);
     } else {
       throw '坦克在障碍物上';
     }
@@ -116,7 +118,7 @@ export class IronWall extends GroundObjects {
 
   draw(context: CanvasRenderingContext2D): void {
     context.fillStyle = '#d3d3d3';
-    context.fillRect((this.x - 1) * 30, (this.y - 1) * 30, 30, 30);
+    context.fillRect(this.x * size, this.y * size, size, size);
   }
 }
 
@@ -128,7 +130,7 @@ export class BrickWall extends GroundObjects {
 
   draw(context: CanvasRenderingContext2D): void {
     context.fillStyle = '#8d6262';
-    context.fillRect((this.x - 1) * 30, (this.y - 1) * 30, 30, 30);
+    context.fillRect(this.x * size, this.y * size, size, size);
   }
 }
 
@@ -139,8 +141,8 @@ export class Plain extends GroundObjects {
   }
 
   draw(context: CanvasRenderingContext2D): void {
-    context.fillStyle = '#cadefc';
-    context.fillRect((this.x - 1) * 30, (this.y - 1) * 30, 30, 30);
+    context.fillStyle = '#1fab89';
+    context.fillRect(this.x * size, this.y * size, size, size);
   }
 }
 
@@ -149,6 +151,7 @@ export class Tank {
   public y: PointNumber;
   public color: string;
   public gameBase: GameBase;
+  private allowTranslate: boolean;
 
   constructor(x: PointNumber, y: PointNumber, color: string, gameBase: GameBase) {
     this.x = x;
@@ -158,25 +161,41 @@ export class Tank {
   }
 
   /* 画出 */
-  public draw(): void {
+  public draw(deg: 0 | 90 | 180 | 270): void {
     const svg = document.getElementById('svg');
     svg.style.fill = this.color;
+    svg.style.transform = `rotate(${deg}deg)`;
     const xml = new XMLSerializer().serializeToString(svg);
     const svg64 = btoa(xml);
     const image64 = 'data:image/svg+xml;base64,' + svg64;
     const img = new Image();
     img.src = image64;
     img.onload = () => {
-      this.gameBase.context.drawImage(img, (this.x - 1) * 30, (this.y - 1) * 30, 30, 30);
+      this.gameBase.context.drawImage(img, this.x * size, this.y * size, size, size);
     };
+    this.allowTranslate = true;
   }
 
   /* 移动 */
   public translate(x: 1 | 0 | -1, y: 1 | 0 | -1): boolean {
-    this.gameBase.context.clearRect((this.x - 1) * 30, (this.y - 1) * 30, 30, 30);
-    this.x += x;
-    this.y += y;
-    this.draw();
+    //墙壁或障碍物不移动
+    if (
+      this.gameBase.ground[this.x + x] !== undefined &&
+      (this.gameBase.ground[this.x + x][this.y + y] === null ||
+        this.gameBase.ground[this.x + x][this.y + y] instanceof Plain) &&
+      this.allowTranslate
+    ) {
+      this.gameBase.context.clearRect(this.x * size, this.y * size, size, size);
+      this.gameBase.ground[this.x][this.y]?.draw(this.gameBase.context);
+      this.x += x;
+      this.y += y;
+      this.draw(x === 1 ? 0 : y === 1 ? 90 : x === -1 ? 180 : 270);
+      this.allowTranslate = false;
+      //防抖
+      setTimeout(() => {
+        this.allowTranslate = true;
+      }, 100);
+    }
     return true;
   }
 }
