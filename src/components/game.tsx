@@ -36,7 +36,7 @@ export default function Game(props: { className?: string }): JSX.Element {
   return (
     <>
       <svg
-        id="svg"
+        id="tank"
         className="icon"
         viewBox="0 0 2546 1024"
         version="1.1"
@@ -50,6 +50,17 @@ export default function Game(props: { className?: string }): JSX.Element {
           fill=""
           p-id="3722"
         />
+      </svg>
+      <svg
+        id="bullet"
+        className="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        width="200"
+        height="200"
+      >
+        <path d="M514 512.4m-445.4 0a445.4 445.4 0 1 0 890.8 0 445.4 445.4 0 1 0-890.8 0Z" fill="" />
       </svg>
       <div className="sidebar">
         <button
