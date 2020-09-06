@@ -1,4 +1,4 @@
-import { size, WhereIndex } from './gameBase';
+import { GameBase, size, WhereIndex } from './gameBase';
 
 /* 障碍物 */
 export abstract class Obstacles {
@@ -12,6 +12,9 @@ export abstract class Obstacles {
 
   /* 画到 canvas 上 */
   public abstract draw(context: CanvasRenderingContext2D): void;
+
+  /* 碰撞 */
+  public abstract gunShoot(gameBase: GameBase): void;
 }
 
 /* 铁墙 */
@@ -24,17 +27,33 @@ export class IronWall extends Obstacles {
     context.fillStyle = '#d3d3d3';
     context.fillRect(this.x * size, this.y * size, size, size);
   }
+
+  gunShoot(): void {
+    return undefined;
+  }
 }
 
 /* 砖头 */
 export class BrickWall extends Obstacles {
+  public lifeValue: 0 | 1 | 2;
+
   constructor(x: WhereIndex, y: WhereIndex) {
     super(x, y);
+    this.lifeValue = 2;
   }
 
   draw(context: CanvasRenderingContext2D): void {
     context.fillStyle = '#8d6262';
     context.fillRect(this.x * size, this.y * size, size, size);
+  }
+
+  gunShoot(gameBase: GameBase): void {
+    this.lifeValue--;
+    // 砖块被打两下就消失
+    if (this.lifeValue === 0) {
+      gameBase.ground[this.x][this.y] = null;
+      gameBase.context.clearRect(this.x * size, this.y * size, size, size);
+    }
   }
 }
 
@@ -47,5 +66,9 @@ export class Plain extends Obstacles {
   draw(context: CanvasRenderingContext2D): void {
     context.fillStyle = '#1fab89';
     context.fillRect(this.x * size, this.y * size, size, size);
+  }
+
+  gunShoot(): void {
+    return undefined;
   }
 }

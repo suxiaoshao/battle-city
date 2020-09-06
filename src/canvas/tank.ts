@@ -1,6 +1,6 @@
 import { Plain } from './obstacles';
 import { GameBase, size, WhereIndex } from './gameBase';
-import { Bullet } from './bullet';
+import { PlayerBullet } from './bullet';
 
 export type Deg = 0 | 90 | 180 | 270;
 
@@ -8,11 +8,11 @@ export type Deg = 0 | 90 | 180 | 270;
 export class Tank {
   public x: WhereIndex;
   public y: WhereIndex;
-  private readonly color: string;
-  private readonly gameBase: GameBase;
+  public readonly color: string;
+  public readonly gameBase: GameBase;
   private deg: Deg;
   private allowTranslate: boolean;
-  private bullet: Bullet | null;
+  public bullet: PlayerBullet | null;
 
   constructor(x: WhereIndex, y: WhereIndex, color: string, gameBase: GameBase) {
     this.x = x;
@@ -52,7 +52,7 @@ export class Tank {
       this.draw(x === 1 ? 0 : y === 1 ? 90 : x === -1 ? 180 : 270);
       this.allowTranslate = false;
       //防抖
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.allowTranslate = true;
       }, 100);
     }
@@ -61,8 +61,11 @@ export class Tank {
 
   /* 发射子弹 */
   public fire(): void {
-    this.bullet = new Bullet(this.x, this.y, this.deg, this.color, this.gameBase);
-    this.bullet?.init();
+    // 不存在子弹才能发射
+    if (this.bullet === null) {
+      this.bullet = new PlayerBullet(this.x, this.y, this.deg, this);
+      this.bullet?.init();
+    }
   }
 }
 
