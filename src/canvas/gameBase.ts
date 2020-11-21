@@ -1,5 +1,5 @@
 import { BrickWall, IronWall, Obstacles, Plain } from './obstacles';
-import { PlayerTanks } from './tank';
+import { EnemyTanks, PlayerTanks } from './tanks';
 
 /* 位置下标 */
 export type WhereIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
@@ -18,10 +18,11 @@ export const size = 37.5;
 
 /* 游戏 */
 export class GameBase {
-  public context: CanvasRenderingContext2D;
-  public ground: (Obstacles | null)[][];
-  public playerTank: PlayerTanks;
-  private readonly keydownEvent: (e: KeyboardEvent) => void;
+  public context: CanvasRenderingContext2D; //上下文
+  public ground: (Obstacles | null)[][]; // 存放障碍物
+  public playerTank: PlayerTanks; //玩家坦克
+  private readonly keydownEvent: (e: KeyboardEvent) => void; // 点击事件
+  public enemyTanks: (EnemyTanks | null)[][]; // 存放敌方坦克
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -43,22 +44,26 @@ export class GameBase {
     groundList.forEach((value) => {
       this.addGroundObjects(value.x, value.y, value.typeCode);
     });
+    //初始化敌方坦克
+    this.enemyTanks = [...Array(20)].map(() => Array(20).fill(null));
+    this.enemyTanks[5][5] = new EnemyTanks(5, 5, '#f73859', this, 2, 200);
+    this.enemyTanks[5][5]?.init();
     //初始化坦克
     this.playerTank = new PlayerTanks(playerTank.x, playerTank.y, playerTank.color, this);
     //绑定键盘事件
     this.keydownEvent = (e) => {
       switch (e.key) {
         case 'w':
-          this.playerTank.translate(0, -1);
+          this.playerTank.move(0, -1);
           break;
         case 'a':
-          this.playerTank.translate(-1, 0);
+          this.playerTank.move(-1, 0);
           break;
         case 's':
-          this.playerTank.translate(0, 1);
+          this.playerTank.move(0, 1);
           break;
         case 'd':
-          this.playerTank.translate(1, 0);
+          this.playerTank.move(1, 0);
           break;
         case ' ':
           this.playerTank.fire();
@@ -109,6 +114,7 @@ export class GameBase {
     document.removeEventListener('keydown', this.keydownEvent);
   }
 
+  //画 svg
   public drawSVG(svg: HTMLCanvasElement, x: number, y: number, svgSize: number): void {
     const xml = new XMLSerializer().serializeToString(svg);
     const svg64 = btoa(xml);

@@ -1,0 +1,87 @@
+@startuml 类图
+class GameBase{
+    {field} public context: CanvasRenderingContext2D
+    {field} private readonly keydownEvent: (e: KeyboardEvent) => void
+    {method} public draw(): void
+    {method} private addGroundObjects(x: WhereIndex, y: WhereIndex, typeCode: 1 | 2 | 3)
+    {method} public gameStart(): void
+    {method} public gamePauses(): void
+    {method} public drawSVG(svg: HTMLCanvasElement, x: number, y: number, svgSize: number): void
+}
+
+abstract class Obstacles {
+    public x: WhereIndex;
+    public y: WhereIndex;
+    public {abstract} draw(context: CanvasRenderingContext2D): void;
+    public {abstract} gunShoot(gameBase: GameBase): void;
+}
+
+class IronWall{
+    draw(context: CanvasRenderingContext2D): void
+    gunShoot(): void
+}
+class BrickWall{
+    draw(context: CanvasRenderingContext2D): void
+    gunShoot(): void
+}
+class Plain{
+    draw(context: CanvasRenderingContext2D): void
+    gunShoot(): void
+}
+abstract class Tanks {
+    public x: WhereIndex;
+    public y: WhereIndex;
+    public readonly color: string;
+    public deg: Deg;
+    private allowTranslate: boolean;
+    protected lifeValue: 0 | 1 | 2 | 3;
+    protected movementSpe: 100 | 200 | 150;
+    public draw(deg: Deg | undefined): void
+    public move(x: 1 | 0 | -1, y: 1 | 0 | -1): boolean
+    public fire(): void
+    public {abstract} gunShoot(bullet: Bullet): boolean;
+    public {abstract} changeGameBase(): undefined;
+}
+class PlayerTanks {
+    public bullet: PlayerBullet | null;
+    public gunShoot(bullet: Bullet): boolean
+    changeGameBase(): undefined;
+}
+class EnemyTanks {
+    public bullet: EnemyBullet | null;
+    public gunShoot(bullet: Bullet): boolean
+    changeGameBase(): undefined;
+}
+abstract class Bullet {
+    public x: WhereIndex;
+    public y: WhereIndex;
+    public deg: Deg;
+    private intervalId: number | null;
+
+    protected constructor(x: WhereIndex, y: WhereIndex, deg: Deg)
+    init(): void
+    move(): void
+    public draw(): void
+}
+class PlayerBullet {
+}
+class EnemyBullet {
+}
+GameBase o-- Obstacles
+Tanks o-- GameBase
+GameBase o-- PlayerTanks
+GameBase o-- EnemyTanks
+Bullet o-- Tanks
+Tanks o--Bullet
+EnemyTanks o-- EnemyBullet
+EnemyBullet o--EnemyTanks
+PlayerTanks o--PlayerBullet
+PlayerBullet o-- PlayerTanks
+Obstacles <|-- IronWall
+Obstacles <|-- BrickWall
+Obstacles <|-- Plain
+Tanks <|-- PlayerTanks
+Tanks <|-- EnemyTanks
+Bullet <|-- PlayerBullet
+Bullet <|-- EnemyBullet
+@enduml

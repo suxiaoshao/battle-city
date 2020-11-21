@@ -13,7 +13,7 @@ export abstract class Obstacles {
   /* 画到 canvas 上 */
   public abstract draw(context: CanvasRenderingContext2D): void;
 
-  /* 碰撞 */
+  /* 中枪 */
   public abstract gunShoot(gameBase: GameBase): void;
 }
 

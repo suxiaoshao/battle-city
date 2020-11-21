@@ -1,0 +1,23 @@
+@startuml 用例图
+actor 用户 as y
+package 游戏{
+    usecase 单人游戏 as d
+    usecase 查看战绩 as k
+    usecase 控制坦克 as kt
+    usecase 发射子弹 as kf
+    usecase 移动 as ky
+    usecase 摧毁障碍物 as cz
+    usecase 摧毁敌方坦克 as ct
+    usecase 胜利 as sl
+    usecase 下一关 as xy
+}
+y-->d
+y-->k
+d-->kt
+d-->kf
+d-->ky
+kf-->cz
+kf-->ct
+ct-->sl
+sl-->xy
+@enduml

@@ -1,0 +1,16 @@
+@startuml 游戏流程图
+
+start
+repeat :运行index.html;
+backward:查看战绩;
+repeat while (选择)
+repeat :单人游戏运行;
+if (游戏结束) then(胜利)
+:下一关;
+elseif (失败) then(yes)
+:继续游戏;
+elseif (退出游戏) then(yes)
+stop
+endif
+
+@enduml
