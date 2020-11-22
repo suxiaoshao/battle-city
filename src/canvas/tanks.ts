@@ -1,6 +1,7 @@
 import { Plain } from './obstacles';
-import { GameBase, size, WhereIndex } from './gameBase';
+import { GameBase, WhereIndex } from './gameBase';
 import { Bullet, EnemyBullet, PlayerBullet } from './bullet';
+import { size } from '../util/config';
 
 export type Deg = 0 | 90 | 180 | 270;
 
@@ -14,7 +15,7 @@ export abstract class Tanks {
   private allowTranslate: boolean;
   public abstract bullet: Bullet | null;
   protected lifeValue: 0 | 1 | 2 | 3;
-  protected movementSpe: 100 | 200 | 150;
+  protected movementSpe: 200 | 300 | 450;
 
   protected constructor(
     x: WhereIndex,
@@ -22,7 +23,7 @@ export abstract class Tanks {
     color: string,
     gameBase: GameBase,
     lifeValue: 1 | 2 | 3,
-    movementSpe: 100 | 200 | 150,
+    movementSpe: 200 | 300 | 450,
   ) {
     this.x = x;
     this.y = y;
@@ -65,6 +66,9 @@ export abstract class Tanks {
       this.y += y;
       this.draw(x === 1 ? 0 : y === 1 ? 90 : x === -1 ? 180 : 270);
       this.allowTranslate = false;
+      if (this instanceof EnemyTanks) {
+        this.gameBase.enemyTanks[this.x][this.y] = this;
+      }
       //防抖
       window.setTimeout(() => {
         this.allowTranslate = true;
@@ -77,13 +81,7 @@ export abstract class Tanks {
   }
 
   /* 发射子弹 */
-  public fire(): void {
-    // 不存在子弹才能发射
-    if (this.bullet === null) {
-      this.bullet = new PlayerBullet(this.x, this.y, this.deg, this);
-      this.bullet?.init();
-    }
-  }
+  public abstract fire(): void;
 
   /* 中枪 */
   public abstract gunShoot(bullet: Bullet): boolean;
@@ -93,15 +91,23 @@ export abstract class Tanks {
 }
 
 export class PlayerTanks extends Tanks {
+  public fire(): void {
+    // 不存在子弹才能发射
+    if (this.bullet === null) {
+      this.bullet = new PlayerBullet(this.x, this.y, this.deg, this);
+      this.bullet?.init();
+    }
+  }
+
   public bullet: PlayerBullet | null;
 
   constructor(x: WhereIndex, y: WhereIndex, color: string, gameBase: GameBase) {
-    super(x, y, color, gameBase, 2, 150);
+    super(x, y, color, gameBase, 2, 200);
     this.bullet = null;
   }
 
   public gunShoot(bullet: Bullet): boolean {
-    if (bullet instanceof EnemyBullet) {
+    if (bullet instanceof EnemyBullet && bullet.x === this.x && bullet.y === this.y) {
       this.lifeValue--;
       return false;
     } else {
@@ -124,7 +130,7 @@ export class EnemyTanks extends Tanks {
     color: string,
     gameBase: GameBase,
     lifeValue: 1 | 2 | 3,
-    movementSpe: 100 | 200 | 150,
+    movementSpe: 200 | 300 | 450,
   ) {
     super(x, y, color, gameBase, lifeValue, movementSpe);
     this.bullet = null;
@@ -148,7 +154,7 @@ export class EnemyTanks extends Tanks {
     }
   }
 
-  public init() {
+  public init(): void {
     this.intervalId = window.setInterval(() => {
       let x: 0 | 1 | -1 = 0;
       let y: 0 | 1 | -1 = 0;
@@ -167,11 +173,25 @@ export class EnemyTanks extends Tanks {
           break;
       }
       this.move(x, y);
+      this.fire();
     }, this.movementSpe + 1);
   }
 
   changeGameBase(): undefined {
     this.gameBase.enemyTanks[this.x][this.y] = this;
     return undefined;
+  }
+
+  public fire(): void {
+    // 不存在子弹才能发射
+    if (this.bullet === null) {
+      this.bullet = new EnemyBullet(this.x, this.y, this.deg, this);
+      this.bullet?.init();
+    }
+  }
+
+  public end(): void {
+    this.bullet?.end();
+    window.clearInterval(this.intervalId);
   }
 }

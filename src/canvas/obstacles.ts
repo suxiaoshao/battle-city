@@ -1,4 +1,5 @@
-import { GameBase, size, WhereIndex } from './gameBase';
+import { GameBase, WhereIndex } from './gameBase';
+import { size } from '../util/config';
 
 /* 障碍物 */
 export abstract class Obstacles {

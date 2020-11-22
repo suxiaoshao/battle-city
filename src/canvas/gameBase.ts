@@ -1,5 +1,6 @@
 import { BrickWall, IronWall, Obstacles, Plain } from './obstacles';
 import { EnemyTanks, PlayerTanks } from './tanks';
+import { getRandomItem } from '../util/random';
 
 /* 位置下标 */
 export type WhereIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
@@ -13,8 +14,21 @@ export interface ObstaclesItem {
 
 /* 清晰度 */
 export const dpr = window.devicePixelRatio || 1;
+
 /* canvas每个格子大小 */
-export const size = 37.5;
+
+export interface EnemyTankItem {
+  x: WhereIndex;
+  y: WhereIndex;
+  lifeValue: 1 | 2 | 3;
+  movementSpe: 200 | 300 | 450;
+}
+
+export interface PlayerTankItem {
+  x: WhereIndex;
+  y: WhereIndex;
+  color: string;
+}
 
 /* 游戏 */
 export class GameBase {
@@ -27,7 +41,8 @@ export class GameBase {
   constructor(
     canvas: HTMLCanvasElement,
     groundList: ObstaclesItem[],
-    playerTank: { x: WhereIndex; y: WhereIndex; color: string },
+    playerTank: PlayerTankItem,
+    enemyTanksList: EnemyTankItem[],
   ) {
     //初始化context
     const rect = canvas.getBoundingClientRect();
@@ -46,8 +61,17 @@ export class GameBase {
     });
     //初始化敌方坦克
     this.enemyTanks = [...Array(20)].map(() => Array(20).fill(null));
+    enemyTanksList.forEach((value) => {
+      this.enemyTanks[value.x][value.y] = new EnemyTanks(
+        value.x,
+        value.y,
+        '#f73859',
+        this,
+        value.lifeValue,
+        value.movementSpe,
+      );
+    });
     this.enemyTanks[5][5] = new EnemyTanks(5, 5, '#f73859', this, 2, 200);
-    this.enemyTanks[5][5]?.init();
     //初始化坦克
     this.playerTank = new PlayerTanks(playerTank.x, playerTank.y, playerTank.color, this);
     //绑定键盘事件
@@ -84,6 +108,11 @@ export class GameBase {
     } else {
       throw '坦克在障碍物上';
     }
+    this.enemyTanks.forEach((value) => {
+      value.forEach((value1) => {
+        value1?.draw(getRandomItem([0, 90, 180, 270]));
+      });
+    });
   }
 
   //添加障碍物
@@ -107,11 +136,21 @@ export class GameBase {
   /* 游戏开始 */
   public gameStart(): void {
     document.addEventListener('keydown', this.keydownEvent);
+    this.enemyTanks.forEach((value) => {
+      value.forEach((value1) => {
+        value1?.init();
+      });
+    });
   }
 
   /* 游戏暂停 */
   public gamePauses(): void {
     document.removeEventListener('keydown', this.keydownEvent);
+    this.enemyTanks.forEach((value) => {
+      value.forEach((value1) => {
+        value1?.end();
+      });
+    });
   }
 
   //画 svg

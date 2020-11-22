@@ -1,4 +1,5 @@
-import { size, WhereIndex } from './gameBase';
+import { WhereIndex } from './gameBase';
+import { size } from '../util/config';
 import { Deg, EnemyTanks, PlayerTanks, Tanks } from './tanks';
 import { Plain } from './obstacles';
 
@@ -31,8 +32,9 @@ export abstract class Bullet {
       this.fatherTanks.gameBase.ground[this.x] !== undefined && // 超出边界
       (this.fatherTanks.gameBase.ground[this.x][this.y] === null ||
         this.fatherTanks.gameBase.ground[this.x][this.y] instanceof Plain) && //是草地
-      (this.fatherTanks.gameBase.enemyTanks[this.x][this.y] === null ||
-        this.fatherTanks.gameBase.enemyTanks[this.x][this.y].gunShoot(this)) && // 敌方没中枪
+      (((this.fatherTanks.gameBase.enemyTanks?.[this.x]?.[this.y] ?? true) ||
+        this.fatherTanks.gameBase.enemyTanks?.[this.x]?.[this.y]?.gunShoot(this)) ??
+        true) && // 敌方没中枪
       this.fatherTanks.gameBase.playerTank.gunShoot(this) // 我方坦克中枪
     ) {
       this.draw();
@@ -45,12 +47,16 @@ export abstract class Bullet {
         this.fatherTanks.gameBase.enemyTanks?.[this.x]?.[this.y]?.draw(undefined);
         // 自己坦克绘制
         this.fatherTanks.gameBase.playerTank.draw(undefined);
-      }, 65);
+      }, 45);
     } else {
-      this.fatherTanks.bullet = null;
-      window.clearInterval(this.intervalId);
+      this.end();
       this.fatherTanks.gameBase.ground?.[this.x]?.[this.y]?.gunShoot(this.fatherTanks.gameBase);
     }
+  }
+
+  public end(): void {
+    this.fatherTanks.bullet = null;
+    window.clearInterval(this.intervalId);
   }
 
   public draw(): void {
