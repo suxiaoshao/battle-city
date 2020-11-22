@@ -34,3 +34,17 @@ npm run serve
 ```
 
 打开浏览器 [开发页面](http://localhost:8083) 就成功启动项目了
+
+## 打包
+
+```bash
+yarn build
+```
+
+或者
+
+```bash
+npm run build
+```
+
+打包出来的文件就在 build/react 下面
