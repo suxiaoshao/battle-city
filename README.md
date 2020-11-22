@@ -5,6 +5,8 @@
 这是一个基于 web canvas 开发的坦克大战游戏,使用了 `typescript` , `react` 和浏览器提供的
  `canvas` api 。
  
+项目地址: <https://github.com/suxiaoshao/battle-city>
+ 
 ## 运行项目
 
 需要先准备 node、npm 环境
@@ -48,3 +50,5 @@ npm run build
 ```
 
 打包出来的文件就在 build/react 下面
+
+直接点开 index.html 就可以运行

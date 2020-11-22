@@ -20,9 +20,9 @@ export function createGameBase(canvas: HTMLCanvasElement, obstaclesNum: number, 
     return Object.assign(
       point,
       getRandomItem([
-        { lifeValue: 1, movementSpe: 200 },
-        { lifeValue: 2, movementSpe: 300 },
-        { lifeValue: 3, movementSpe: 400 },
+        { lifeValue: 1, movementSpe: 200, color: '#039BE5' },
+        { lifeValue: 2, movementSpe: 300, color: '#EC407A' },
+        { lifeValue: 3, movementSpe: 400, color: '#689F38' },
       ]),
     ) as EnemyTankItem;
   });

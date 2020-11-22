@@ -22,6 +22,7 @@ export interface EnemyTankItem {
   y: WhereIndex;
   lifeValue: 1 | 2 | 3;
   movementSpe: 200 | 300 | 450;
+  color: string;
 }
 
 export interface PlayerTankItem {
@@ -65,13 +66,12 @@ export class GameBase {
       this.enemyTanks[value.x][value.y] = new EnemyTanks(
         value.x,
         value.y,
-        '#f73859',
+        value.color,
         this,
         value.lifeValue,
         value.movementSpe,
       );
     });
-    this.enemyTanks[5][5] = new EnemyTanks(5, 5, '#f73859', this, 2, 200);
     //初始化坦克
     this.playerTank = new PlayerTanks(playerTank.x, playerTank.y, playerTank.color, this);
     //绑定键盘事件
